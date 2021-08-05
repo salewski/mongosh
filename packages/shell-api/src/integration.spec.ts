@@ -2239,7 +2239,7 @@ describe('Shell API (integration)', function() {
       let calls = 0;
       cursor.map(() => { calls++; throw error; });
       for (let i = 0; i < 2; i++) {
-        // Try reading twice to make sure .map() is not called again for the second attempt.
+        // Try reading twice to make sure .map() is called again for the second attempt.
         try {
           await cursor.tryNext();
           expect.fail('missed exception');
@@ -2247,7 +2247,7 @@ describe('Shell API (integration)', function() {
           expect(err).to.equal(error);
         }
       }
-      expect(calls).to.equal(1);
+      expect(calls).to.equal(2);
     });
   });
 
