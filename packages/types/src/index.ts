@@ -162,10 +162,21 @@ export interface SpMissingOptionalDependencyEvent {
 
 export interface EditorRunEditCommandEvent {
   tmpdoc: string;
+  editor: string;
   args: string[];
 }
 
 export interface EditorRunEditCommandFailedEvent {
+  action: string;
+  error: string;
+}
+
+export interface EditorReadVscodeExtensionsDoneEvent {
+  vscodeDir: string;
+  hasMongodbExtension: boolean;
+}
+
+export interface EditorReadVscodeExtensionsFailedEvent {
   action: string;
   error: string;
 }
@@ -347,6 +358,10 @@ export interface MongoshBusEventsMap {
   'mongosh-editor:run-edit-command': (ev: EditorRunEditCommandEvent) => void;
   /** Signals that a run edit command has failed. */
   'mongosh-editor:run-edit-command-failed': (ev: EditorRunEditCommandFailedEvent) => void;
+  /** Signals that reading vscode extensions from disc has completed. */
+  'mongosh-editor:read-vscode-extensions-done': (ev: EditorReadVscodeExtensionsDoneEvent) => void;
+  /** Signals that reading vscode extensions from disc failed. */
+  'mongosh-editor:read-vscode-extensions-failed': (ev: EditorReadVscodeExtensionsFailedEvent) => void;
 }
 
 export interface MongoshBus {
@@ -360,10 +375,11 @@ export class ShellUserConfig {
   displayBatchSize = 20;
   maxTimeMS: number | null = null;
   enableTelemetry = false;
+  editor: string | null = null;
 }
 
 export class ShellUserConfigValidator {
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line complexity, @typescript-eslint/require-await
   static async validate<K extends keyof ShellUserConfig>(key: K, value: ShellUserConfig[K]): Promise<string | null> {
     switch (key) {
       case 'displayBatchSize':
@@ -379,6 +395,11 @@ export class ShellUserConfigValidator {
       case 'enableTelemetry':
         if (typeof value !== 'boolean') {
           return `${key} must be a boolean`;
+        }
+        return null;
+      case 'editor':
+        if (typeof value !== 'string' && value !== null) {
+          return `${key} must be a string or null`;
         }
         return null;
       default:
