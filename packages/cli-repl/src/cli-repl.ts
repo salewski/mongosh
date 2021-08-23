@@ -21,6 +21,7 @@ import { MongoshBus, CliUserConfig } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { promisify } from 'util';
+import { makeMultilineJSIntoSingleLine } from './js-multiline-to-singleline';
 
 /**
  * Connecting text key.
@@ -192,9 +193,11 @@ class CliRepl {
     }
 
     const editor = new Editor({
+      input: this.input,
       vscodeDir: this.shellHomeDirectory.rcPath('.vscode'),
       tmpDir: this.shellHomeDirectory.roamingPath('editor'),
-      internalState: this.mongoshRepl.runtimeState().internalState
+      internalState: this.mongoshRepl.runtimeState().internalState,
+      makeMultilineJSIntoSingleLine: makeMultilineJSIntoSingleLine // TODO: move to its own package
     });
     editor.activate();
 
